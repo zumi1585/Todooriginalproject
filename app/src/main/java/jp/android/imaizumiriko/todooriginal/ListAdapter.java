@@ -14,6 +14,8 @@ import java.util.List;
 
 import io.realm.Realm;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
+
 public class ListAdapter extends ArrayAdapter<Todo> {
     //AdapterはListViewを橋渡しする役目を持っている
 
@@ -26,70 +28,73 @@ public class ListAdapter extends ArrayAdapter<Todo> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent){
+    public View getView(int position, View convertView, ViewGroup parent) {
 
         final Todo todo = getItem(position);
         //getItem(position)でTodoクラスに入っている内容からposition番目のデータを取得する
 
-        if (convertView == null){
-            convertView = layoutInflater.inflate(R.layout_item_Todo,null);
+        if (convertView == null) {
+            convertView = layoutInflater.inflate(R.layout.layout_item_todo, null);
             //itemをセットする（ListViewに表示する一個のセルのテンプレートのようなもの）
         }
 
         final TextView textView = (TextView) convertView.findViewById(R.id.content1_text);
         //そのセルのViewの関連付け
 
-        if (todo != null){//もし、todoの内容に何か入っていれば
+        if (todo != null) {//もし、todoの内容に何か入っていれば
 
             textView.setText(todo.title);
 
 
+            textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
 
                     Realm realm = Realm.getDefaultInstance();
                     //Realmを使うのに必ず書かないといけない
 
-                    final Todo realmTodo = realm.where(Todo.class).equalTo("updateDate".todo.updateDate).findFirst();
+                    final Todo realmTodo = realm.where(Todo.class).equalTo("updateDate", todo.updateDate).findFirst();
                     //詳しくはAddActivityを参照
-                realm.executeTransaction(new Realm.Transaction(){
-                    @Override
-                    public void execute(Realm realm){
-                        if(realmTodo.judge){
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            if (realmTodo.judge) {
 
-                            textView.setText(todo.title);
-                            realmTodo.judge = false;
+                                textView.setText(todo.title);
+                                realmTodo.judge = false;
 
-                    }else {
+                            } else {
 
-                            textView.setText(todo.limited);
-                            realmTodo.judge = true;
+                                textView.setText(todo.limited);
+                                realmTodo.judge = true;
+                            }
+
                         }
-                });
-                };
-            })
+
+                    });
+
+                }
+            });
+
+            textView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {//長押ししたら
+
+                    final Context context = getContext();
+                    Intent intent = new Intent(context, DetailActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("updateDate", todo.updateDate);
+                    context.startActivity(intent);
+                    //DetailActivityに画面遷移する
+
+                    return false;
+                }
+            });
+
+
         }
 
+        return convertView;
     }
-
-    textView.setOnLongClickListener(new View.OnLongClickListener(){
-        @Override
-                public boolean onLongClick(View v){//長押ししたら
-
-            final Context context = getContext();
-            Intent intent = new Intent(context,DetailActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("updateDate",todo.updateDate);
-            context.startActivity(intent);
-            //DetailActivityに画面遷移する
-
-            return false;
-        }
-    });
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_adapter);
-    }
-
-    return convertView;
 }

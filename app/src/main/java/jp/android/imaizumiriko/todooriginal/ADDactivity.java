@@ -52,12 +52,12 @@ public class ADDactivity extends AppCompatActivity {
         realm.executeTransaction(new Realm.Transaction(){
             @Override
             public void execute(Realm realm){
-                todo = realm.createObject(todo.class);
+                todo = realm.createObject(Todo.class);
                 //todoクラスに情報を代入してあげると自動的に保存してくれる。
                 todo.title = title;
                 todo.limited = limited;
                 todo.updateDate = updateDate;
-                todo.judge = judge
+                todo.judge = judge;
 
             }
         });
